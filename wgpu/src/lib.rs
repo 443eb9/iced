@@ -131,6 +131,14 @@ impl Renderer {
         }
     }
 
+    pub fn device(&self) -> &wgpu::Device {
+        &self.engine.device
+    }
+
+    pub fn queue(&self) -> &wgpu::Queue {
+        &self.engine.queue
+    }
+
     fn draw(
         &mut self,
         clear_color: Option<Color>,
