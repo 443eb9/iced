@@ -17,14 +17,25 @@ pub trait Compositor: Sized {
     /// The surface of the backend.
     type Surface;
 
+    /// The optional context when constructing the compositor.
+    type Context;
+
     /// Creates a new [`Compositor`].
     fn new(
         settings: Settings,
         display: impl Display + Clone,
         compatible_window: impl Window + Clone,
         shell: Shell,
+        context: Option<Self::Context>,
     ) -> impl Future<Output = Result<Self, Error>> {
-        Self::with_backend(settings, display, compatible_window, shell, None)
+        Self::with_backend(
+            settings,
+            display,
+            compatible_window,
+            shell,
+            None,
+            context,
+        )
     }
 
     /// Creates a new [`Compositor`] with a backend preference.
@@ -37,6 +48,7 @@ pub trait Compositor: Sized {
         compatible_window: impl Window + Clone,
         shell: Shell,
         backend: Option<&str>,
+        context: Option<Self::Context>,
     ) -> impl Future<Output = Result<Self, Error>>;
 
     /// Creates a [`Self::Renderer`] for the [`Compositor`].
@@ -162,6 +174,7 @@ pub struct Information {
 impl Compositor for () {
     type Renderer = ();
     type Surface = ();
+    type Context = ();
 
     async fn with_backend(
         _settings: Settings,
@@ -169,6 +182,7 @@ impl Compositor for () {
         _compatible_window: impl Window + Clone,
         _shell: Shell,
         _preferred_backend: Option<&str>,
+        _context: Option<Self::Context>,
     ) -> Result<Self, Error> {
         Ok(())
     }

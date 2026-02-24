@@ -27,6 +27,7 @@ pub struct Surface {
 impl crate::graphics::Compositor for Compositor {
     type Renderer = Renderer;
     type Surface = Surface;
+    type Context = ();
 
     async fn with_backend(
         settings: graphics::Settings,
@@ -34,6 +35,7 @@ impl crate::graphics::Compositor for Compositor {
         _compatible_window: impl compositor::Window,
         _shell: Shell,
         backend: Option<&str>,
+        context: Option<Self::Context>,
     ) -> Result<Self, Error> {
         match backend {
             None | Some("tiny-skia") | Some("tiny_skia") => {

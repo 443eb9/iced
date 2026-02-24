@@ -70,6 +70,18 @@ where
     P: Program + 'static,
     P::Theme: theme::Base,
 {
+    run_with_compositor(program, None)
+}
+
+/// Runs a [`Program`] with the provided settings and a custom [`Compositor`].
+pub fn run_with_compositor<P>(
+    program: P,
+    compositor_context: Option<<<P::Renderer as compositor::Default>::Compositor as graphics::Compositor>::Context>,
+) -> Result<(), Error>
+where
+    P: Program + 'static,
+    P::Theme: theme::Base,
+{
     use winit::event_loop::EventLoop;
 
     let boot_span = debug::boot();
@@ -129,6 +141,7 @@ where
 
     let instance = Box::pin(run_instance::<P>(
         program,
+        compositor_context,
         runtime,
         proxy.clone(),
         event_receiver,
@@ -493,6 +506,7 @@ enum Control {
 
 async fn run_instance<P>(
     mut program: program::Instance<P>,
+    mut compositor_context: Option<<<P::Renderer as compositor::Default>::Compositor as graphics::Compositor>::Context>,
     mut runtime: Runtime<P::Executor, Proxy<P::Message>, Action<P::Message>>,
     mut proxy: Proxy<P::Message>,
     mut event_receiver: mpsc::UnboundedReceiver<Event<Action<P::Message>>>,
@@ -585,6 +599,7 @@ async fn run_instance<P>(
                         let display_handle = display_handle.clone();
                         let proxy = proxy.clone();
                         let default_fonts = default_fonts.clone();
+                        let maybe_context = compositor_context.take();
 
                         async move {
                             let shell = Shell::new(proxy.clone());
@@ -595,6 +610,7 @@ async fn run_instance<P>(
                                     display_handle,
                                     window,
                                     shell,
+                                    maybe_context,
                                 ).await;
 
                             if let Ok(compositor) = &mut compositor {

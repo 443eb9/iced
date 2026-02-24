@@ -75,4 +75,12 @@ impl Engine {
             .expect("primitive storage should be writable")
             .trim();
     }
+
+    pub fn device(&self) -> &wgpu::Device {
+        &self.device
+    }
+
+    pub fn queue(&self) -> &wgpu::Queue {
+        &self.queue
+    }
 }

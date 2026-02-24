@@ -260,9 +260,12 @@ impl<A, B> graphics::Compositor for Compositor<A, B>
 where
     A: graphics::Compositor,
     B: graphics::Compositor,
+    A::Context: Clone,
+    B::Context: Clone,
 {
     type Renderer = Renderer<A::Renderer, B::Renderer>;
     type Surface = Surface<A::Surface, B::Surface>;
+    type Context = (Option<A::Context>, Option<B::Context>);
 
     async fn with_backend(
         settings: graphics::Settings,
@@ -270,6 +273,7 @@ where
         compatible_window: impl compositor::Window + Clone,
         shell: Shell,
         backend: Option<&str>,
+        context: Option<Self::Context>,
     ) -> Result<Self, graphics::Error> {
         use std::env;
 
@@ -293,6 +297,7 @@ where
         }
 
         let mut errors = vec![];
+        let (ctx_a, ctx_b) = context.unwrap_or((None, None));
 
         for backend in candidates.iter().map(Option::as_deref) {
             match A::with_backend(
@@ -301,6 +306,7 @@ where
                 compatible_window.clone(),
                 shell.clone(),
                 backend,
+                ctx_a.clone(),
             )
             .await
             {
@@ -316,6 +322,7 @@ where
                 compatible_window.clone(),
                 shell.clone(),
                 backend,
+                ctx_b.clone(),
             )
             .await
             {
@@ -723,6 +730,8 @@ impl<A, B> compositor::Default for Renderer<A, B>
 where
     A: compositor::Default,
     B: compositor::Default,
+    <A::Compositor as graphics::Compositor>::Context: Clone,
+    <B::Compositor as graphics::Compositor>::Context: Clone,
 {
     type Compositor = Compositor<A::Compositor, B::Compositor>;
 }
