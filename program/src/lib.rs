@@ -116,6 +116,10 @@ pub trait Program: Sized {
     fn presets(&self) -> &[Preset<Self::State, Self::Message>] {
         &[]
     }
+
+    fn compositor_context(&self, state: &Self::State) -> Option<<<Self::Renderer as compositor::Default>::Compositor as graphics::Compositor>::Context>{
+        None
+    }
 }
 
 /// Decorates a [`Program`] with the given title function.
@@ -712,5 +716,10 @@ impl<P: Program> Instance<P> {
     /// Returns the current scale factor of the [`Instance`].
     pub fn scale_factor(&self, window: window::Id) -> f32 {
         self.program.scale_factor(&self.state, window)
+    }
+
+    /// Returns the possible compositor context of the [`Instance`].
+    pub fn compositor_context(&self) -> Option<<<P::Renderer as compositor::Default>::Compositor as graphics::Compositor>::Context>{
+        self.program.compositor_context(&self.state)
     }
 }
