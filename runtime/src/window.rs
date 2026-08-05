@@ -178,6 +178,9 @@ pub enum Action {
     /// Get the logical dimensions of the monitor containing the window with the given [`Id`].
     GetMonitorSize(Id, oneshot::Sender<Option<Size>>),
 
+    /// Get the name of the monitor containing the window with the given [`Id`].
+    GetMonitorName(Id, oneshot::Sender<Option<String>>),
+
     /// Set whether the system can automatically organize windows into tabs.
     ///
     /// See <https://developer.apple.com/documentation/appkit/nswindow/1646657-allowsautomaticwindowtabbing>

@@ -1675,6 +1675,15 @@ fn run_action<'a, P, C>(
                     let _ = channel.send(size);
                 }
             }
+            window::Action::GetMonitorName(id, channel) => {
+                if let Some(window) = window_manager.get(id) {
+                    let name = window
+                        .raw
+                        .current_monitor()
+                        .and_then(|monitor| monitor.name());
+                    let _ = channel.send(name);
+                }
+            }
             window::Action::SetAllowAutomaticTabbing(enabled) => {
                 control_sender
                     .start_send(Control::SetAutomaticWindowTabbing(enabled))
